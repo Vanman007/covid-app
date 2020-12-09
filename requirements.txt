@@ -1,0 +1,6 @@
+django==3.0.8
+psycopg2-binary==2.8.5
+django-elasticsearch-dsl==7.1.4
+Faker==4.1.1
+psycopg2-binary
+
