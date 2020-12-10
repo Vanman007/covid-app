@@ -1,3 +1,5 @@
+<meta name="google-signin-client_id" content="770688674608-0n9tic1b0g45i0h9k6s7ohf64e12fqbb.apps.googleusercontent.com">
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -18,4 +20,79 @@
     {% endfor %}
     <button type="submit">Sign up</button>
   </form>
+  <p>or sign up with</p>
+
+
+<fb:login-button 
+  scope="public_profile,email"
+  onlogin="checkLoginState();">
+</fb:login-button>
+
+
+
+{% comment %} 
+<button onclick="onSignIn()">Sign in with button onClick</button> {% endcomment %}
+
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+{% load static %}
+<script src="{% static 'js/signup.js' %}"></script>
+{% comment %} 
+<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script> {% endcomment %}
+
+
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script>
+function onSignIn(googleUser){
+  var profile = googleUser.getBasicProfile();
+  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+  console.log('Name: ' + profile.getName());
+  console.log('Image URL: ' + profile.getImageUrl());
+  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+  var id_token = googleUser.getAuthResponse().id_token;
+
+  //send id to backend
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://yourbackend.example.com/tokensignin');
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+    console.log('Signed in as: ' + xhr.responseText);
+  };
+  xhr.send('idtoken=' + id_token);
+
+}
+</script>
+
+{% comment %} 
+function init() {
+    gapi.load('auth2', function() {
+        gapi.auth2.init({
+            client_id: '770688674608-0n9tic1b0g45i0h9k6s7ohf64e12fqbb.apps.googleusercontent.com',
+            scope: 'profile'
+        })
+    })
+} {% endcomment %}
+
+{% comment %} function onSignIn(googleUser) {
+  var id_token = googleUser.getAuthResponse().id_token;
+
+}
+
+function sendToBackend(){
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'https://yourbackend.example.com/tokensignin');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+  console.log('Signed in as: ' + xhr.responseText);
+};
+xhr.send('idtoken=' + id_token);
+} {% endcomment %}
+
+</script>
+
+
+
+
 {% endblock %}
