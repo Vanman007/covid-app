@@ -12,6 +12,7 @@ class CovidUser(models.Model):
     city=models.CharField(max_length=150)
     country=models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
+    hasCovid = models.BooleanField(default=True)
 
     user = models.ForeignKey(User, related_name='search', on_delete=models.CASCADE)
 

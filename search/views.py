@@ -8,8 +8,8 @@ def search(request):
     q = request.GET.get('q')
     #print(q)
     print("been here")
-    posts = PostDocument.search()
-    for hit in posts:
+    coviduser = PostDocument.search()
+    for hit in coviduser:
         print(hit.country)
 
 

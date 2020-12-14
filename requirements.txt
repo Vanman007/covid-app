@@ -5,3 +5,4 @@ Faker==4.1.1
 psycopg2-binary
 google_oauth2_tool
 google-auth
+djangorestframework

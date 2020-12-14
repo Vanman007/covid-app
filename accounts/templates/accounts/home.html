@@ -1,12 +1,9 @@
-<meta name="google-signin-client_id" content="770688674608-0n9tic1b0g45i0h9k6s7ohf64e12fqbb.apps.googleusercontent.com">
-
 {% extends 'base.html' %}
 
 {% block content %}
 
 
 {% load static %}
-<script src="{% static 'js/accounts/signup.js' %}"></script>
 <link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">  
 <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>  
 
@@ -18,12 +15,6 @@
     <input class="form-control text-center" type="text" placeholder="Search" aria-label="Search">
     </div>
 </div>
-
-
-<fb:login-button 
-  scope="public_profile,email"
-  onlogin="checkLoginState();">
-</fb:login-button>
 
 
 {% endblock %}

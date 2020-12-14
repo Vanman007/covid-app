@@ -29,6 +29,7 @@ class PostDocument(Document):
             'created_at',
             'city',
             'country',
+            'hasCovid'
         ]
 
     def get_queryset(self):

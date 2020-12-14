@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">  
+<script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>  
+
+<div class="container">
+hi #user <br>
+this is your profile information:<br>
+
+Username: {{request.user.username}}<br>
+
+Email: {{request.user.email}}<br>
+
+change password <a href="#">here</a>
+
+<hr>
+
+covid info:<br>
+
+{% if context.hasCovidData %}
+  show info
+  button : i no longer got corona
+{% else %}
+  we got no info about you yet please help us by answering this form.as_p
+{% endif %}
+
+
+<hr>
+delete my account
+
+</div>
+
+here user can: <br>
+
+sign out<br>
+
+remove i got corona<br>
+update user location<br>
+delete account<br>
+
+
+
+
+
+
+{% endblock %}

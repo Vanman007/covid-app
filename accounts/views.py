@@ -1,9 +1,10 @@
 from django.contrib.auth import login, authenticate
-from django.shortcuts import render, redirect
-from .forms import SignUpForm, SignInForm
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout as logout_django
-
+from django.shortcuts import render, redirect
+from .forms import SignUpForm
+from django.contrib.auth.forms import AuthenticationForm
+from search.documents import PostDocument
+from elasticsearch_dsl import Search
 
 def home(request):
     if request.method == 'POST':
@@ -36,12 +37,9 @@ def signup(request):
 def signin(request):
     if request.method == 'POST':
         form = AuthenticationForm(request=request, data=request.POST)
-        print(request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password')
-            print(username)
-            print(password)
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('home')
@@ -52,3 +50,12 @@ def signin(request):
 def logout(request):
     logout_django(request)
     return redirect("home")
+
+
+def edit(request):
+    result = PostDocument.search().query("match", userid=request.user.id)
+    for i in result:
+        print(i.username)    
+    context = {}
+
+    return render(request, "accounts/edit.html")

@@ -22,7 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url('', include('search.urls', namespace='search')),    
-    path('', home, name='home')
+    path('', home, name='home'),
+    path('api/accounts/', include(('accounts.api_urls', 'accounts_api'), namespace='accounts_api')),
 
 ]
 
