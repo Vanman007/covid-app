@@ -2,7 +2,7 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from .serializers import UserSerializer,CovidUserSerializer
-from search.documents import PostDocument
+from search.documents import CovidUserDocument
 from elasticsearch_dsl import Search
 from search.models import CovidUser
 
@@ -90,7 +90,7 @@ __all__ = (
 class CovidUser(DocumentViewSet):
     """The PublisherDocument view."""
 
-    document = PostDocument
+    document = CovidUserDocument
     serializer_class = CovidUserSerializer
     lookup_field = 'id'
     filter_backends = [

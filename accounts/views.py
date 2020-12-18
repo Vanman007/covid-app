@@ -3,7 +3,7 @@ from django.contrib.auth import logout as logout_django
 from django.shortcuts import render, redirect
 from .forms import SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
-from search.documents import PostDocument
+from search.documents import CovidUserDocument
 from elasticsearch_dsl import Search
 
 def home(request):
@@ -53,7 +53,7 @@ def logout(request):
 
 
 def edit(request):
-    result = PostDocument.search().query("match", userid=request.user.id)
+    result = CovidUser.search().query("match", userid=request.user.id)
     for i in result:
         print(i.username)    
     context = {}

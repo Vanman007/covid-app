@@ -17,7 +17,7 @@ SEARCH_INDEX.settings(
 
 #@registry.register_document
 @SEARCH_INDEX.doc_type
-class PostDocument(Document):
+class CovidUserDocument(Document):
     id = fields.IntegerField(attr='id')
 
     user = fields.ObjectField(properties={

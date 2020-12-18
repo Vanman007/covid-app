@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from search.models import CovidUser
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 import json
-from search.documents import PostDocument
+from search.documents import CovidUserDocument
 
 # class CovidUserSerializer(serializers.Serializer):
 
@@ -28,7 +28,7 @@ class CovidUserSerializer(DocumentSerializer):
         """Meta options."""
 
         # Specify the correspondent document class
-        document = PostDocument
+        document = CovidUserDocument
 
         # List the serializer fields. Note, that the order of the fields
         # is preserved in the ViewSet.
