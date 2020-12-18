@@ -3,10 +3,6 @@
 {% block content %}
 
 
-{% load static %}
-<link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">  
-<script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>  
-
 <!-- Search form -->
 <div class ="container">
     <br>
@@ -15,6 +11,52 @@
     <input class="form-control text-center" type="text" placeholder="Search" aria-label="Search">
     </div>
 </div>
+
+{% comment %} <script>
+function UpdateCovidUserInfo(){
+    console.log(getCookie('csrftoken'))
+    data = {
+        access_token: access_token,
+        business_id: business_id,
+        app_scoped_id: app_scoped_id
+    }
+
+    // update token
+    $.ajax({
+        url: "/api/accounts/manage-covid-user/",
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        type: 'PUT',
+        contentType: 'application/x-www-form-urlencoded; charset=utf-8', 
+        processData: true, 
+        data: data,
+        success: function(res) {
+            console.log(res);
+        }
+    });
+
+} 
+</script> {% endcomment %}
+<button onclick="GetUsr()">fdsa</button>
+<script>
+function GetUsr(){
+    
+
+    // update token
+    $.ajax({
+        url: "/api/accounts/manage-covid-user/",
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        type: 'GET',
+        contentType: 'application/x-www-form-urlencoded; charset=utf-8', 
+        processData: true, 
+        success: function(res) {
+            console.log(res);
+        }
+    });
+
+} 
+</script> 
+
+
 
 
 {% endblock %}

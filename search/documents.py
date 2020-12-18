@@ -1,36 +1,56 @@
 from django.contrib.auth import get_user_model
-from django_elasticsearch_dsl import Document, fields
+from django_elasticsearch_dsl import Document, fields, Index
 from django_elasticsearch_dsl.registries import registry
 from .models import CovidUser
+from elasticsearch_dsl import analyzer
 
 User = get_user_model()
 
 
-@registry.register_document
+SEARCH_INDEX = Index('search')
+
+SEARCH_INDEX.settings(
+    number_of_shards=1,
+    number_of_replicas=1
+)
+
+
+#@registry.register_document
+@SEARCH_INDEX.doc_type
 class PostDocument(Document):
+    id = fields.IntegerField(attr='id')
+
     user = fields.ObjectField(properties={
         'id': fields.IntegerField(),
         'username': fields.TextField(),
         # 'photo': fields.FileField(),  use this type if you have a file/image
     })
 
-    class Index:
-        # Name of the Elasticsearch index
-        name = 'search'
-        # See Elasticsearch Indices API reference for available settings
-        settings = {'number_of_shards': 1,
-                    'number_of_replicas': 0}
+    city = fields.TextField(
+        fields={
+            'raw': fields.KeywordField(analyzer='keyword'),
+        }
+    )
 
-    class Django:
-        model = CovidUser  # The model associated with this Document
 
-        # The fields of the model you want to be indexed in Elasticsearch
-        fields = [
-            'created_at',
-            'city',
-            'country',
-            'hasCovid'
-        ]
+    # class Index:
+    #     # Name of the Elasticsearch index
+    #     name = 'search'
+    #     # See Elasticsearch Indices API reference for available settings
+    #     settings = {'number_of_shards': 1,
+    #                 'number_of_replicas': 0}
+
+    class Django(object):
+        model = CovidUser  # The model associate with this Document
+
+        #The fields of the model you want to be indexed in Elasticsearch
+        # fields = [
+        #     'created_at',
+        #     'city',
+        #     'country',
+        #     'hasCovid'
+        # ]
+
 
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""

@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_elasticsearch_dsl',
-    #'rest_framework'
+    'rest_framework',
+    'django_elasticsearch_dsl_drf',
     'search',
     'accounts',
 ]
@@ -139,5 +140,16 @@ ELASTICSEARCH_DSL = {
     'default': {
         'hosts': os.getenv("ELASTICSEARCH_DSL_HOSTS", 'localhost:9200')
     },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+    'ORDERING_PARAM': 'ordering',
 }
 
