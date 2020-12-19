@@ -25,13 +25,13 @@ class Command(BaseCommand):
 
         # create a super user + other simple users
         #User.objects.create_superuser("admin", "admin@admin.com", "admin")
-        [create_profile(faker) for _ in range(4)]
+        #[create_profile(faker) for _ in range(4)]
 
         users_ids = User.objects.values_list('id', flat=True) 
 
         for _ in range(count):
-            create_coviduser(faker, users_ids)
-
+            user= create_profile(faker)
+            create_coviduser(faker, user.id)
 
         call_command('search_index', '--rebuild', '-f')
         self.stdout.write(self.style.SUCCESS('Successfully ended commands'))
@@ -50,11 +50,14 @@ def create_profile(faker, retries=0):
         # try again with different random username
         return create_profile(faker, retries + 1)
 
-def create_coviduser(faker, users_ids):
+def create_coviduser(faker, users_id):
     coviduser = CovidUser(
-        user_id=random.choice(users_ids),
+        user_id=users_id,
         city=faker.city(),
         country=faker.country(),
+        state_province="",
+        address=faker.address(),
         created_at=faker.date_time_between(start_date="-10d", end_date="now", tzinfo=tz.gettz('UTC')),
+        has_covid=True
     )
     coviduser.save()

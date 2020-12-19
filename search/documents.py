@@ -28,33 +28,44 @@ class CovidUserDocument(Document):
 
     city = fields.TextField(
         fields={
-            'raw': fields.KeywordField(analyzer='keyword'),
+            'raw': fields.KeywordField(),
+            'suggest': fields.CompletionField(),
         }
     )
 
+    address = fields.TextField(
+        fields={
+            'raw': fields.KeywordField(),
+            'suggest': fields.CompletionField(),
+        }
+    )
 
-    # class Index:
-    #     # Name of the Elasticsearch index
-    #     name = 'search'
-    #     # See Elasticsearch Indices API reference for available settings
-    #     settings = {'number_of_shards': 1,
-    #                 'number_of_replicas': 0}
+    state_province = fields.TextField(
+        fields={
+            'raw': fields.KeywordField(),
+        }
+    )
+    country = fields.TextField(
+        fields={
+            'raw': fields.KeywordField(),
+            'suggest': fields.CompletionField(),
+        }
+    )
+    
+    # Location
+    location = fields.GeoPointField(attr='location_field_indexing')
+
+    created_at = fields.DateField(attr='created_at')
+
+    has_covid = fields.BooleanField(attr='has_covid')
 
     class Django(object):
         model = CovidUser  # The model associate with this Document
 
-        #The fields of the model you want to be indexed in Elasticsearch
-        # fields = [
-        #     'created_at',
-        #     'city',
-        #     'country',
-        #     'hasCovid'
-        # ]
-
 
     def get_queryset(self):
         """Not mandatory but to improve performance we can select related in one sql request"""
-        return super(PostDocument, self).get_queryset().select_related(
+        return super(CovidUserDocument, self).get_queryset().select_related(
             'user'
         )
 

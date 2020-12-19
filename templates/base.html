@@ -1,4 +1,5 @@
 {% load static %}
+
 <link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">  
 <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>  
 <script src="{% static 'js/misc/jquery.min.js' %}"></script>  
@@ -11,9 +12,9 @@
   <nav class="my-2 my-md-0 me-md-3">
     <a class="p-2 text-dark" href="#">about</a>
     <a class="p-2 text-dark" href="#">maps</a>
-    <a class="p-2 text-dark" onclick="return confirm('Are you sure you want to logout?')" href="accounts/logout">logout</a>
+    <a class="p-2 text-dark" onclick="return confirm('Are you sure you want to logout?')" href="/accounts/logout">logout</a>
   </nav>
-  <a class="p-2 text-dark" href="accounts/edit">{{request.user.username }}</a>
+  <a class="p-2 text-dark" href="/accounts/edit">{{request.user.username }}</a>
 </header>
 {% else %}
 <header class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">

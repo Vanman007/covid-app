@@ -53,7 +53,7 @@ def logout(request):
 
 
 def edit(request):
-    result = CovidUser.search().query("match", userid=request.user.id)
+    result = CovidUserDocument.search().query("match", userid=request.user.id)
     for i in result:
         print(i.username)    
     context = {}

@@ -1,10 +1,10 @@
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from django.contrib.auth import get_user_model
-from rest_framework import permissions
-from .serializers import UserSerializer,CovidUserSerializer
-from search.documents import CovidUserDocument
-from elasticsearch_dsl import Search
-from search.models import CovidUser
+# from rest_framework.generics import RetrieveUpdateDestroyAPIView
+# from django.contrib.auth import get_user_model
+# from rest_framework import permissions
+# from .serializers import UserSerializer,CovidUserSerializer
+# from search.documents import CovidUserDocument
+# from elasticsearch_dsl import Search
+# from search.models import CovidUser
 
 # User = get_user_model()
 
@@ -56,173 +56,100 @@ from search.models import CovidUser
 # #     serializer_class = CurrentUserSerializer
 
 from django_elasticsearch_dsl_drf.constants import (
-    FUNCTIONAL_SUGGESTER_COMPLETION_MATCH,
-    FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-    LOOKUP_FILTER_GEO_BOUNDING_BOX,
     LOOKUP_FILTER_GEO_DISTANCE,
-    LOOKUP_FILTER_GEO_POLYGON,
-    LOOKUP_FILTER_GEO_SHAPE,
-    SUGGESTER_COMPLETION,
-    SUGGESTER_PHRASE,
-    SUGGESTER_TERM,
 )
 from django_elasticsearch_dsl_drf.filter_backends import (
     FilteringFilterBackend,
-    DefaultOrderingFilterBackend,
     OrderingFilterBackend,
-    SearchFilterBackend,
+    CompoundSearchFilterBackend,
+    DefaultOrderingFilterBackend,
     SuggesterFilterBackend,
-    FunctionalSuggesterFilterBackend,
-    GeoSpatialFilteringFilterBackend,
-    GeoSpatialOrderingFilterBackend,
+    FacetedSearchFilterBackend,
 )
-from django_elasticsearch_dsl_drf.pagination import LimitOffsetPagination
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 
-#from search.documents import PostDocument
-#from .serializers import UserSerializer,CovidUserSerializer
+from search.documents import CovidUserDocument
+from search.serializers import CovidUserDocumentSerializer
 
-__all__ = (
-    'PublisherDocumentViewSet',
-)
+from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
+from django_elasticsearch_dsl_drf.pagination import LimitOffsetPagination
 
 
-class CovidUser(DocumentViewSet):
-    """The PublisherDocument view."""
+class CovidUserDocumentView(DocumentViewSet):
+    """The CovidUserDocument view."""
 
     document = CovidUserDocument
-    serializer_class = CovidUserSerializer
+    serializer_class = CovidUserDocumentSerializer
     lookup_field = 'id'
     filter_backends = [
         FilteringFilterBackend,
-        # OrderingFilterBackend,
-        SearchFilterBackend,
-        #GeoSpatialFilteringFilterBackend,
-        #GeoSpatialOrderingFilterBackend,
-        # DefaultOrderingFilterBackend,
+        OrderingFilterBackend,
+        DefaultOrderingFilterBackend,
+        CompoundSearchFilterBackend,
         SuggesterFilterBackend,
-        FunctionalSuggesterFilterBackend,
     ]
     pagination_class = LimitOffsetPagination
     # Define search fields
     search_fields = (
-       # 'name',
-        #'info',
-        #'address',
+        'address',
         'city',
-       # 'state_province',
-       # 'country',
+        'state_province',
+        'country',
     )
     # Define filtering fields
     filter_fields = {
         'id': None,
-       # 'name': 'name.raw',
         'city': 'city.raw',
-      #  'state_province': 'state_province.raw',
-       # 'country': 'country.raw',
+        'state_province': 'state_province.raw',
+        'country': 'country.raw',
+        'address':'address.raw',        
     }
-    # Define geo-spatial filtering fields
-    # geo_spatial_filter_fields = {
-    #     'location': {
-    #         'lookups': [
-    #             LOOKUP_FILTER_GEO_BOUNDING_BOX,
-    #             LOOKUP_FILTER_GEO_DISTANCE,
-    #             LOOKUP_FILTER_GEO_POLYGON,
-    #         ],
-    #     },
-    #     'location_2': 'location',
-    #     'location_point': {
-    #         'lookups': [
-    #             LOOKUP_FILTER_GEO_SHAPE,
-    #         ]
-    #     },
-    #     'location_circle': {
-    #         'lookups': [
-    #             LOOKUP_FILTER_GEO_SHAPE,
-    #         ]
-    #     },
-    # }
     # Define ordering fields
     ordering_fields = {
         'id': None,
-        #'name': None,
+        'name': None,
         'city': None,
-       # 'country': None,
+        'country': None,
+        'address': None,
     }
-    # Define ordering fields
-    # geo_spatial_ordering_fields = {
-    #     'location': None,
-    # }
-    # # Specify default ordering
-    # ordering = ('id', 'name',)
-
-    # # Suggester fields
-    suggester_fields = {
-        'name_suggest': {
-            'field': 'name.suggest',
-            'suggesters': [
-                SUGGESTER_TERM,
-                SUGGESTER_PHRASE,
-                SUGGESTER_COMPLETION,
+    # Specify default ordering
+    ordering = ('id')
+    # Define geo-spatial filtering fields
+    geo_spatial_filter_fields = {
+        'location': {
+            'lookups': [
+                LOOKUP_FILTER_GEO_DISTANCE,
             ],
-            'default_suggester': SUGGESTER_COMPLETION,
         },
+    }
+    suggester_fields = {
         'city_suggest': {
             'field': 'city.suggest',
             'suggesters': [
                 SUGGESTER_COMPLETION,
             ],
+            'options': {
+                'size': 6,  # Override default number of suggestions
+                'skip_duplicates':True, # Whether duplicate suggestions should be filtered out.
+            },
         },
-        'state_province_suggest': 'state_province.suggest',
+        'state_province_suggest': {
+            'field': 'state_province.suggest',
+            'suggesters': [
+                SUGGESTER_COMPLETION,
+            ],
+        },
         'country_suggest': {
             'field': 'country.suggest',
             'suggesters': [
                 SUGGESTER_COMPLETION,
             ],
-            'default_suggester': SUGGESTER_COMPLETION,
         },
-    }
-
-    # Functional suggester fields
-    functional_suggester_fields = {
-        'name_suggest': {
-            'field': 'name.raw',
+        'address_suggest': {
+            'field': 'address.suggest',
             'suggesters': [
-                FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
+                SUGGESTER_COMPLETION,
             ],
-            'default_suggester': FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            # 'serializer_field': 'name',
         },
-        'name_match_suggest': {
-            'field': 'name',
-            'suggesters': [
-                FUNCTIONAL_SUGGESTER_COMPLETION_MATCH,
-            ],
-            'default_suggester': FUNCTIONAL_SUGGESTER_COMPLETION_MATCH,
-            # 'serializer_field': 'name',
-        },
-        'city_suggest': {
-            'field': 'city.raw',
-            'suggesters': [
-                FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            ],
-            'default_suggester': FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            # 'serializer_field': 'city',
-        },
-        'state_province_suggest': {
-            'field': 'state_province.suggest',
-            'suggesters': [
-                FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            ],
-            'default_suggester': FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            # 'serializer_field': 'state_province',
-        },
-        'country_suggest': {
-            'field': 'country.raw',
-            'suggesters': [
-                FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            ],
-            'default_suggester': FUNCTIONAL_SUGGESTER_COMPLETION_PREFIX,
-            # 'serializer_field': 'country',
-        },
+        
     }

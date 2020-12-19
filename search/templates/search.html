@@ -2,10 +2,8 @@
 
 {% block content %}
 
-
 {% load static %}
-<link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">  
-<script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>  
+<link rel="stylesheet" href="{% static '/css/search.css' %}">
 
 
 <!-- Search form -->
@@ -24,6 +22,75 @@
 {% endfor %}
 
 
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<div class="container">
+  <div class="form-group ui-widget">
+    <label>Languages</label>
+    <input id="search-bar" class="form-control autocomplete" placeholder="Enter A" />
+  </div>
+</div>
+
+
+
+<div class="ui-widget">
+  <label for="city">Your city: </label>
+  <input id="city">
+  Powered by <a href="http://geonames.org">geonames.org</a>
+</div>
+
+<div class="ui-widget" style="margin-top:2em; font-family:Arial">
+  Result:
+  <div id="log" style="height: 200px; width: 300px; overflow: auto;" class="ui-widget-content"></div>
+</div>
+
+
+
+<script>
+  $(function() {
+    function log( message ) {
+      $( "<div>" ).text( message ).prependTo( "#log" );
+      $( "#log" ).scrollTop( 0 );
+    }
+
+    $( "#city" ).autocomplete({
+      source: function( request, response ) {
+        $.ajax({
+          url: "http://localhost:8000/api/search/suggest",
+          dataType: "json",
+          data: {
+            city_suggest__completion: request.term
+          },
+          success: function( data ) {
+            
+            var suggestions=[]
+            
+            $.each(data.city_suggest__completion[0].options, function(index,value){
+                suggestions.push(value.text)
+            })
+        
+            response(suggestions)
+
+
+          }
+        });
+      },
+      select: function( event, ui ) {
+        log( ui.item ?
+          "Selected: " + ui.item.label :
+          "Nothing selected, input was " + this.value);
+      },
+      open: function() {
+        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+      },
+      close: function() {
+        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+      }
+
+    });
+  });
+</script>
 
 
 

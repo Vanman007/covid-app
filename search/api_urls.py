@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .api_views import CovidUser
+from .api_views import CovidUserDocumentView
 
 
 
@@ -10,7 +10,7 @@ router = DefaultRouter()
 
 router.register(
     r'search',
-    CovidUser,
+    CovidUserDocumentView,
     basename='searchdocument'
 )
 
