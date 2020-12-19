@@ -6,8 +6,7 @@ from elasticsearch.exceptions import NotFoundError
 
 def search(request):
     q = request.GET.get('q')
-    #print(q)
-    print("been here")
+    
     coviduser = CovidUserDocument.search()
     for hit in coviduser:
         print(hit.country)
