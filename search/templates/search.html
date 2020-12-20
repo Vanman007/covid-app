@@ -5,8 +5,8 @@
 {% load static %}
 <link rel="stylesheet" href="{% static '/css/search.css' %}">
 
+<!-- 
 
-<!-- Search form -->
 <form method="get">
 <div class ="container">
     <br>
@@ -19,11 +19,10 @@
 
 {%for item in result %}
 {{item.country}}
-{% endfor %}
+{% endfor %} 
 
 
 
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <div class="container">
   <div class="form-group ui-widget">
@@ -31,30 +30,99 @@
     <input id="search-bar" class="form-control autocomplete" placeholder="Enter A" />
   </div>
 </div>
+-->
+
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<div class="container text-center">
+
+  <div id="country" class="ui-widget" >
+    <p>Search covid number for a country</p>
+    <input id="country-search" placeholder="eg. Denmark">
+  </div> 
+  <br>
+
+  <div id="city" class="ui-widget" hidden>
+    <p>Optional* for a city</p>
+    <input id="city-search" placeholder="eg. Denmark">
+  </div>
 
 
 
-<div class="ui-widget">
-  <label for="city">Your city: </label>
-  <input id="city">
-  Powered by <a href="http://geonames.org">geonames.org</a>
+  <div id="log-query" class="ui-widget" style="margin-top:2em; font-family:Arial" hidden >
+    <p>Search will show results for:</p>
+    <div id="log-country" style="font-weight: bold;" class="ui-widget-content"></div>
+    <div id="log-city" style="font-weight: bold;" class="ui-widget-content"></div>
+ 
+    <button>Go</button>
+  </div>
+
+
+
 </div>
 
-<div class="ui-widget" style="margin-top:2em; font-family:Arial">
-  Result:
-  <div id="log" style="height: 200px; width: 300px; overflow: auto;" class="ui-widget-content"></div>
-</div>
+
 
 
 
 <script>
+
+//add autocomplete to country
   $(function() {
     function log( message ) {
-      $( "<div>" ).text( message ).prependTo( "#log" );
-      $( "#log" ).scrollTop( 0 );
+      $( "<div>" ).text(""+ message ).prependTo( "#log-country" );
+      $( "#log-country" ).scrollTop( 0 );
     }
 
-    $( "#city" ).autocomplete({
+    $( "#country-search" ).autocomplete({
+      source: function( request, response ) {
+        $.ajax({
+          url: "http://localhost:8000/api/search/suggest",
+          dataType: "json",
+          headers: {'X-CSRFToken':  getCookie('csrftoken')},
+          data: {
+            country_suggest__completion: request.term
+          },
+          success: function( data ) {
+            
+            var suggestions=[]
+            
+            $.each(data.country_suggest__completion[0].options, function(index,value){
+                suggestions.push(value.text)
+            })
+        
+            response(suggestions)
+
+
+          }
+        });
+      },
+      select: function( event, ui ) {
+        log( ui.item ?
+          ui.item.label :
+          "Nothing selected, input was " + this.value);
+          document.getElementById('city').removeAttribute("hidden");  
+          document.getElementById('log-query').removeAttribute("hidden");  
+      },
+      open: function() {
+        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+      },
+      close: function() {
+        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+      }
+
+    });
+  });
+
+//add autocomplete to citry
+$(function() {
+    function log( message ) {
+      $( "<div>" ).text( message ).prependTo( "#log-city" );
+      $( "#log-city" ).scrollTop( 0 );
+    }
+
+    $( "#city-search" ).autocomplete({
       source: function( request, response ) {
         $.ajax({
           url: "http://localhost:8000/api/search/suggest",
@@ -78,8 +146,13 @@
       },
       select: function( event, ui ) {
         log( ui.item ?
-          "Selected: " + ui.item.label :
+          ui.item.label :
           "Nothing selected, input was " + this.value);
+          document.getElementById('city');
+        //make result unhidden
+        //make city unhidden
+
+
       },
       open: function() {
         $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
@@ -90,6 +163,14 @@
 
     });
   });
+
+
+function makeSearch(){
+  //ajax 
+}
+
+
+
 </script>
 
 

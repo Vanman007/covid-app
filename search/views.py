@@ -8,8 +8,8 @@ def search(request):
     q = request.GET.get('q')
     
     coviduser = CovidUserDocument.search()
-    for hit in coviduser:
-        print(hit.country)
+    # for hit in coviduser:
+    #     print(hit.country)
 
 
     if q:
