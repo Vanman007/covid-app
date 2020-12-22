@@ -3,14 +3,21 @@
 
 {% block content %}
 
-    <div class="container">
+    <div class="container text-center">
         <form method="POST">
         {% csrf_token %}
         {{form.as_p}}
-            <button style="background-color:#F4EB16; color:blue" class="btn btn-outline-info" type="submit">Login</button>
+            <button class="btn btn-primary" type="submit">Login</button>
         </form>
-        Don't have an account? <a href="/register" target="blank"><strong>register here</strong></a>!
+        <p>Don't have an account? <a href="/accounts/signup" target="blank"><strong>register here</strong></a>!</p>
+
+        <p>or connect with</p>
+
+        <a title="Google" class="socialaccount_provider google" href="/accounts/google/login/?process=login">Google</a>
+
+
     </div>
+
     {% for error in form.errors%}
         {{error}}
     {% endfor %}

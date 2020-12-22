@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'django_elasticsearch_dsl_drf',
     'search',
     'accounts',
+
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account', 
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -153,3 +159,25 @@ REST_FRAMEWORK = {
     'ORDERING_PARAM': 'ordering',
 }
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+ )
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+SITE_ID = 1
+ 
+LOGIN_REDIRECT_URL = '/'
+
+GOOGLE_CLIENT=os.getenv("google_client", None)

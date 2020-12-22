@@ -41,20 +41,22 @@
     <p>Search covid number for a country</p>
     <input id="country-search" placeholder="eg. Denmark">
   </div> 
-  <br>
 
-  <div id="city" class="ui-widget" hidden>
+
+  <div id="city" class="" hidden>
     <p>Optional* for a city</p>
-    <input id="city-search" placeholder="eg. Denmark">
+    <input type="text" id="city-search" placeholder="eg. Copenhagen">
   </div>
 
 
 
-  <div id="log-query" class="ui-widget" style="margin-top:2em; font-family:Arial" hidden >
-    <p>Search will show results for:</p>
+  <div id="log-query" class="ui-widget" style="margin-top:2em; font-family:Arial"  hidden>
+    <p>Search in:</p>
     <div id="log-country" style="font-weight: bold;" class="ui-widget-content"></div>
     <div id="log-city" style="font-weight: bold;" class="ui-widget-content"></div>
- 
+
+    <table id="log" style="margin-left: auto;margin-right: auto;" ></table>
+    <br>
     <button>Go</button>
   </div>
 
@@ -67,102 +69,100 @@
 
 
 <script>
+var city=""
+var country=""
 
+function updateQuery( ) {
+  $("#log").empty()
+  $("#log").append("<tr><td><p style='font-weight: bold'>country</p></td><td><p>:"+country+"</p></td></tr>");
+  if(city!=""){
+  $("#log").append("<tr><td><p style='font-weight: bold'>city</p></td><td><p>:"+city+"</p></td></tr>");
+  $("#log").scrollTop( 0 );
+  }
+}
+
+ $('#city').keyup(function(){
+  if($('#city-search').val()==""){
+    city=""
+    updateQuery()
+  }
+});
+  
 //add autocomplete to country
-  $(function() {
-    function log( message ) {
-      $( "<div>" ).text(""+ message ).prependTo( "#log-country" );
-      $( "#log-country" ).scrollTop( 0 );
+$(function() {
+  $( "#country-search" ).autocomplete({
+    source: function( request, response ) {
+      $.ajax({
+        url: "/api/search/suggest",
+        dataType: "json",
+        headers: {'X-CSRFToken':  getCookie('csrftoken')},
+        data: {
+          country_suggest__completion: request.term
+        },
+        success: function( data ) {
+          var suggestions=[]
+          $.each(data.country_suggest__completion[0].options, function(index,value){
+              suggestions.push(value.text)
+          })
+          response(suggestions)
+        }
+      });
+    },
+    select: function( event, ui ) {
+      country=ui.item.label
+      updateQuery();
+        document.getElementById('city').removeAttribute("hidden");  
+        document.getElementById('log-query').removeAttribute("hidden");  
+    },
+    open: function() {
+      $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+    },
+    close: function() {
+      $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
     }
 
-    $( "#country-search" ).autocomplete({
-      source: function( request, response ) {
-        $.ajax({
-          url: "http://localhost:8000/api/search/suggest",
-          dataType: "json",
-          headers: {'X-CSRFToken':  getCookie('csrftoken')},
-          data: {
-            country_suggest__completion: request.term
-          },
-          success: function( data ) {
-            
-            var suggestions=[]
-            
-            $.each(data.country_suggest__completion[0].options, function(index,value){
-                suggestions.push(value.text)
-            })
-        
-            response(suggestions)
-
-
-          }
-        });
-      },
-      select: function( event, ui ) {
-        log( ui.item ?
-          ui.item.label :
-          "Nothing selected, input was " + this.value);
-          document.getElementById('city').removeAttribute("hidden");  
-          document.getElementById('log-query').removeAttribute("hidden");  
-      },
-      open: function() {
-        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-      },
-      close: function() {
-        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-      }
-
-    });
   });
+});
 
 //add autocomplete to citry
 $(function() {
-    function log( message ) {
-      $( "<div>" ).text( message ).prependTo( "#log-city" );
-      $( "#log-city" ).scrollTop( 0 );
+
+
+  $( "#city-search" ).autocomplete({
+    source: function( request, response ) {
+      $.ajax({
+        url: "http://localhost:8000/api/search/suggest",
+        dataType: "json",
+        data: {
+          city_suggest__completion: request.term
+        },
+        success: function( data ) {
+          
+          var suggestions=[]
+          
+          $.each(data.city_suggest__completion[0].options, function(index,value){
+              suggestions.push(value.text)
+          })
+      
+          response(suggestions)
+
+
+        }
+      });
+    },
+    select: function( event, ui ) {
+      city=ui.item.label
+      updateQuery();
+    },
+    open: function() {
+      $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+    },
+    close: function() {
+      $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
     }
 
-    $( "#city-search" ).autocomplete({
-      source: function( request, response ) {
-        $.ajax({
-          url: "http://localhost:8000/api/search/suggest",
-          dataType: "json",
-          data: {
-            city_suggest__completion: request.term
-          },
-          success: function( data ) {
-            
-            var suggestions=[]
-            
-            $.each(data.city_suggest__completion[0].options, function(index,value){
-                suggestions.push(value.text)
-            })
-        
-            response(suggestions)
-
-
-          }
-        });
-      },
-      select: function( event, ui ) {
-        log( ui.item ?
-          ui.item.label :
-          "Nothing selected, input was " + this.value);
-          document.getElementById('city');
-        //make result unhidden
-        //make city unhidden
-
-
-      },
-      open: function() {
-        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-      },
-      close: function() {
-        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-      }
-
-    });
   });
+});
 
 
 function makeSearch(){

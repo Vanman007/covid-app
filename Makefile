@@ -1,5 +1,5 @@
 own:
-	sudo chmod 777 -R ~/Desktop/covidapp
+	sudo chmod 777 -R ~/Desktop/covid-app
 
 dropdb:
 	docker exec -it covidapp_db_1 bash 
