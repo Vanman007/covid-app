@@ -3,18 +3,31 @@
 
 {% block content %}
 
-    <div class="container text-center">
+    <div class="container d-flex justify-content-center">
         <form method="POST">
         {% csrf_token %}
-        {{form.as_p}}
+        <p><label for="id_username">Name:</label><br>
+            <input type="text" name="username" maxlength="150">
+            {% for error in form.username.errors %}
+                <p style="color: red; font-size: 12px">{{ error }}</p>
+            {% endfor %}</p>
+        <p><label for="id_password">Password:</label><br>
+            <input type="password" name="password" autocomplete="new-password" required="" id="id_password">
+            {% for error in form.password.errors %}
+                <p style="color: red; font-size: 12px">{{ error }}</p>
+            {% endfor %}</p>
+        <div class="text-center">
             <button class="btn btn-primary" type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="/accounts/signup" target="blank"><strong>register here</strong></a>!</p>
-
+        <p>Don't have an account? <a href="/accounts/signup" target="blank"><br><strong>register here</strong></a>!</p>
+        <hr>
         <p>or connect with</p>
 
         <a title="Google" class="socialaccount_provider google" href="/accounts/google/login/?process=login">Google</a>
+                
+        
+        </div>
 
+</form>
 
     </div>
 
