@@ -69,11 +69,11 @@ class CovidUserDocument(Document):
             'user'
         )
 
-    def get_instances_from_related(self, related_instance):
-        """If related_models is set, define how to retrieve the Post instance(s) from the related model.
-        The related_models option should be used with caution because it can lead in the index
-        to the updating of a lot of items.
-        """
-        if isinstance(related_instance, User):
-            return related_instance.CovidUser.all()
+    # def get_instances_from_related(self, related_instance):
+    #     """If related_models is set, define how to retrieve the instance(s) from the related model.
+    #     The related_models option should be used with caution because it can lead in the index
+    #     to the updating of a lot of items.
+    #     """
+    #     if isinstance(related_instance, User):
+    #         return related_instance.CovidUser.all()
 

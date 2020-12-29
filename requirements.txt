@@ -5,7 +5,7 @@ Faker==4.1.1
 google_oauth2_tool
 google-auth
 #djangorestframework
-django-elasticsearch-dsl-drf
+django-elasticsearch-dsl-drf==0.15.1
 djangorestframework>=3.11.0,<3.12
 django-cors-headers==3.2.0
 python-memcached==1.58

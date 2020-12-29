@@ -26,6 +26,8 @@ spec:
           value: "h#qldm7Vxldf&#,39h"
         - name: DATABASE_NAME
           value: "postgres"
+        - name: ES_DB
+          value: "<<<<<<<<<<<<<< SET HERE >>>>>>>>>>>>>>>>>""
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
