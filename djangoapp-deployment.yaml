@@ -14,20 +14,20 @@ spec:
     spec:
       containers:
       - name: django-app
-        image: covidprojectregistry.azurecr.io/covid-web-app:latest
+        image: covidprojectregistry.azurecr.io/djangokube:latest
         ports:
         - containerPort: 80
         env:
         - name: DATABASE_HOST
           value: "jelly-postgres.postgres.database.azure.com"
-        - name: DATABASE_USERNAME
+        - name: DATABASE_USER
           value: "postgres"
         - name: DATABASE_PASSWORD
-          value: "h#qldm7Vxldf&#,39h"
+          value: "Dsvh74uMfs9wnWM"
         - name: DATABASE_NAME
           value: "postgres"
         - name: ES_DB
-          value: "<<<<<<<<<<<<<< SET HERE >>>>>>>>>>>>>>>>>""
+          value: "postgres"          
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
