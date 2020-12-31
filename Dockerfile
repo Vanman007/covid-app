@@ -1,20 +1,22 @@
-# Pull base image
-FROM python:3.7
+# Use the official Python image from the Docker Hub
+FROM python:3.8.2
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Set work directory
+# Make a new directory to put our code in.
+RUN mkdir /code
+
+# Change the working directory.
 WORKDIR /code
 
-# Copy project
+# Copy to code folder
 COPY . /code/
 
-#RUN chmod 777 -R ~/Desktop/covidapp
+# Install the requirements.
+RUN pip install -r requirements.txt
 
-# Install dependencies
-RUN pip install -r /code/requirements.txt
-
+# Run the application:
+CMD python manage.py runserver 0.0.0.0:8000
 
 

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: django-app
-        image: covidprojectregistry.azurecr.io/covidapp:latest
+        image: covidprojectregistry.azurecr.io/covidapp:v1
         ports:
         - containerPort: 80
         env:

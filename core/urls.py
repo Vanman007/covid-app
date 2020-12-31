@@ -24,7 +24,7 @@ urlpatterns = [
     url('', include('search.urls', namespace='search')),    
     path('', home, name='home'),
     path('api/', include(('search.api_urls', 'search'), namespace='search_api')),
-    path('api/accounts/', include(('accounts.api_urls', 'accounts'), namespace='accounts_api')),
+   # path('api/accounts/', include(('accounts.api_urls', 'accounts'), namespace='accounts_api')),
     path('accounts/', include('allauth.urls')),
  
 

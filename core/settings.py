@@ -12,10 +12,11 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -43,7 +44,6 @@ INSTALLED_APPS = [
     'django_elasticsearch_dsl_drf',
     'search',
     'accounts',
-
     'django.contrib.sites',
     'allauth',
     'allauth.account', 
@@ -84,19 +84,21 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+    
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432  
-    }
+DATABASES={
+   'default':{
+      'ENGINE':'django.db.backends.postgresql_psycopg2',
+      'NAME':os.getenv('DATABASE_NAME', 'postgres'),
+      'USER':os.getenv('DATABASE_USER', 'postgres'),
+      'PASSWORD':os.getenv('DATABASE_PASSWORD', 'Dsvh74uMfs9wnWM'),
+      'HOST':os.getenv('DATABASE_HOST', 'db'),
+      'PORT':'5432',
+   }
 }
 
-
+if os.environ.get('DEV','1') == '0':
+    DATABASES['default']['OPTIONS'] ={'sslmode': 'require'}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
