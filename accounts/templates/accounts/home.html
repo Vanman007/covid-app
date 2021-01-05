@@ -123,6 +123,7 @@ $(function() {
   $( "#city-search" ).autocomplete({
     source: function( request, response ) {
       $.ajax({
+        headers: {'X-CSRFToken':  getCookie('csrftoken')},
         url: "http://localhost:8000/api/search/suggest",
         dataType: "json",
         data: {
