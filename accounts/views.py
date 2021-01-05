@@ -1,24 +1,46 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as logout_django
 from django.shortcuts import render, redirect
-from .forms import SignUpForm
+from .forms import SignUpForm, CovidUserInfoForm
 from django.contrib.auth.forms import AuthenticationForm
+from search.models import CovidUser
+from django.contrib.auth import get_user_model
 from search.documents import CovidUserDocument
 from elasticsearch_dsl import Search
+from elasticsearch.exceptions import NotFoundError
+from elasticsearch_dsl import Q
+from elasticsearch_dsl import A
+
+
+User=get_user_model()
+
+
 
 def home(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('home')
+    city = request.GET.get('citysearch')
+    country = request.GET.get('countrysearch')
+    if city and country:
+        q=(Q("match", city=city) & Q("match", country=country) & Q("match", has_covid=True))
+        result = CovidUserDocument.search().query(q)
+        context ={
+            'country':result.execute().hits[0].country,
+            'city' :result.execute().hits[0].city,
+            'risk':result.execute().hits[0].covid_risk,
+            'hits': result.count()['value']
+            }
+
+    elif country and not city:
+        result = CovidUserDocument.search().query("match", country=country)
+        context ={
+            'country':result.execute().hits[0].country,
+            'risk':result.execute().hits[0].covid_risk,
+            'hits': result.count()['value']
+        }
     else:
-        form = SignUpForm()
-    return render(request, 'accounts/home.html', {'form': form})
+        context ={}
+
+    return render(request, 'accounts/home.html', context)
+
 
 def signup(request):
     if request.method == 'POST':
@@ -53,9 +75,39 @@ def logout(request):
 
 
 def edit(request):
-    result = CovidUserDocument.search().query("match", userid=request.user.id)
-    for i in result:
-        print(i.username)    
-    context = {}
-
-    return render(request, "accounts/edit.html")
+    if request.method == 'POST':
+        form = CovidUserInfoForm(request.POST)
+        if form.is_valid():
+            city = form.cleaned_data.get('city')
+            country = form.cleaned_data.get('country')
+            has_covid = form.cleaned_data.get('has_covid')
+            try:
+                obj = CovidUser.objects.get(user__id=request.user.id)
+                obj.city=city
+                obj.country=country
+                obj.has_covid=has_covid
+                obj.save()
+            except CovidUser.DoesNotExist:
+                user = User.objects.get(id=request.user.id)
+                obj=CovidUser.objects.create(
+                    user=user,
+                    city=city, 
+                    country=country,
+                    has_covid=has_covid
+                )
+            return render(request,'accounts/edit.html', {"form":form})
+    else:
+        try:
+            obj = CovidUser.objects.get(user__id=request.user.id)    
+        except CovidUser.DoesNotExist:
+            form = CovidUserInfoForm(initial={'has_data': False})
+            return render(request, "accounts/edit.html",{"form":form})
+        form = CovidUserInfoForm(
+            initial={
+                'city':obj.city,
+                'country':obj.country,
+                'has_covid':obj.has_covid,
+                'has_data': True
+                }
+            )
+    return render(request, "accounts/edit.html",{"form":form})

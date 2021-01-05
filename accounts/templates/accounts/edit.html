@@ -6,40 +6,39 @@
 <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>  
 
 <div class="container">
-hi #user <br>
-this is your profile information:<br>
+<p>Hi!</p>
+<p>this is your profile information:</p>
+<p>Username: <b>{{request.user.username}}</b><br>
+Email: <b>{{request.user.email}}</b></p>
 
-Username: {{request.user.username}}<br>
-
-Email: {{request.user.email}}<br>
-
-change password <a href="#">here</a>
 
 <hr>
 
 covid info:<br>
 
-{% if context.hasCovidData %}
-  show info
-  button : i no longer got corona
+
+{{form.has_data}}
+
+{% if form.has_data.value == False %}
+  </p>we got no info about you yet please help us by answering this </p>
+  <form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" class="btn btn-primary" value="Submit"> 
+  </form>
 {% else %}
-  we got no info about you yet please help us by answering this form.as_p
+  <form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" class="btn btn-primary" value="Submit"> 
+  </form>
+
+
+
 {% endif %}
 
 
 <hr>
-delete my account
-
-</div>
-
-here user can: <br>
-
-sign out<br>
-
-remove i got corona<br>
-update user location<br>
-delete account<br>
-
 
 
 

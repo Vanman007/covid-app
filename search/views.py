@@ -3,20 +3,34 @@ from django.shortcuts import render, redirect
 from search.documents import CovidUserDocument
 from elasticsearch_dsl import Search
 from elasticsearch.exceptions import NotFoundError
+from elasticsearch_dsl import Q
+from elasticsearch_dsl import A
+import requests
+
 
 def search(request):
-    q = request.GET.get('q')
-    
-    coviduser = CovidUserDocument.search()
-    # for hit in coviduser:
-    #     print(hit.country)
+    city = request.GET.get('citysearch')
+    country = request.GET.get('countrysearch')
+    if city and country:
+        q=(Q("match", city=city) & Q("match", country=country) & Q("match", has_covid=True))
+        result = CovidUserDocument.search().query(q)
+        context ={
+            'country':result.execute().hits[0].country,
+            'city' :result.execute().hits[0].city,
+            'risk':result.execute().hits[0].covid_risk,
+            'hits': result.count()['value']
+            }
 
-
-    if q:
-        result = CovidUserDocument.search().query("match", country=q)
+    elif country and not city:
+        result = CovidUserDocument.search().query("match", country=country)
+        context ={
+            'country':result.execute().hits[0].country,
+            'risk':result.execute().hits[0].covid_risk,
+            'hits': result.count()['value']
+        }
     else:
-        result = ""
-    #result = PostDocument.search().query("match", contry=q)
-    context = {'result':result}
+        context ={}
 
     return render(request, 'search.html', context)
+
+

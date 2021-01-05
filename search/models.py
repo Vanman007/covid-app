@@ -10,11 +10,12 @@ User = get_user_model()
 # Create your models here.
 class CovidUser(models.Model):
     city=models.CharField(max_length=150)
-    address = models.CharField(max_length=200)
+    address = models.CharField(max_length=200, blank=True)
     country=models.CharField(max_length=150)
-    state_province = models.CharField(max_length=80)
+    state_province = models.CharField(max_length=80, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     has_covid = models.BooleanField(default=True)
+    covid_risk = models.CharField(max_length=1000, blank=True)
     latitude = models.DecimalField(null=True,
                                blank=True,
                                decimal_places=15,

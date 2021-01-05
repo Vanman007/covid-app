@@ -51,6 +51,12 @@ class CovidUserDocument(Document):
             'suggest': fields.CompletionField(),
         }
     )
+
+    covid_risk= fields.TextField(
+        fields={
+            'raw': fields.KeywordField(),
+        }
+    ) 
     
     # Location
     location = fields.GeoPointField(attr='location_field_indexing')

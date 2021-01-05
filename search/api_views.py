@@ -87,6 +87,7 @@ class CovidUserDocumentView(DocumentViewSet):
         DefaultOrderingFilterBackend,
         CompoundSearchFilterBackend,
         SuggesterFilterBackend,
+        FacetedSearchFilterBackend
     ]
     pagination_class = LimitOffsetPagination
     # Define search fields
@@ -122,6 +123,16 @@ class CovidUserDocumentView(DocumentViewSet):
             ],
         },
     }
+    #facet
+    faceted_search_fields = {
+        'state_global': {
+            'field': 'state.raw',
+            'enabled': True,
+            'global': True,  # This makes the aggregation global
+        },
+    }   
+
+
     suggester_fields = {
         'city_suggest': {
             'field': 'city.suggest',

@@ -4,35 +4,6 @@
 
 {% load static %}
 <link rel="stylesheet" href="{% static '/css/search.css' %}">
-
-<!-- 
-
-<form method="get">
-<div class ="container">
-    <br>
-    <p class="text-center">Search for a contry and state/province to get covid number</p>
-    <div class="md-form mt-0">
-    <input name="q" id="q" class="form-control text-center" type="text" placeholder="Search" aria-label="Search">
-    </div>
-</div>
-</form>
-
-{%for item in result %}
-{{item.country}}
-{% endfor %} 
-
-
-
-
-<div class="container">
-  <div class="form-group ui-widget">
-    <label>Languages</label>
-    <input id="search-bar" class="form-control autocomplete" placeholder="Enter A" />
-  </div>
-</div>
--->
-
-
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <div class="container text-center">
@@ -41,28 +12,38 @@
     <p>Search covid number for a country</p>
     <input id="country-search" placeholder="eg. Denmark">
   </div> 
-
+  
+  <div id="result" >
+    <br>
+    <p>Showing result for <b>{{city}}</b> in <b>{{country}}</b> </p>
+    <p>There are <b>{{hits}}</b> infected in area </p>
+    <p>The goverment recomendations for selected area is:</p>
+    <p><b>{{risk}}</b></p>
+  </div>
 
   <div id="city" class="" hidden>
     <p>Optional* for a city</p>
     <input type="text" id="city-search" placeholder="eg. Copenhagen">
   </div>
 
-
-
   <div id="log-query" class="ui-widget" style="margin-top:2em; font-family:Arial"  hidden>
+    <form>
     <p>Search in:</p>
-    <div id="log-country" style="font-weight: bold;" class="ui-widget-content"></div>
+    <div id="log-country" style="font-weight: bold;" class="ui-widget-content"><div>
+    <input type="hidden" id="countrysearch" name="countrysearch">
     <div id="log-city" style="font-weight: bold;" class="ui-widget-content"></div>
-
+    <input type="hidden" id="citysearch" name="citysearch" >
     <table id="log" style="margin-left: auto;margin-right: auto;" ></table>
     <br>
-    <button>Go</button>
+    <input onclick="setValues()" type="submit" value="Go"> 
+    </form>
   </div>
-
-
-
 </div>
+
+
+
+
+
 
 
 
@@ -72,13 +53,24 @@
 var city=""
 var country=""
 
+if (window.location.search === ''){
+  $('#result').attr("hidden",true)
+}
+
 function updateQuery( ) {
+  $('#result').attr("hidden",true)
+
   $("#log").empty()
   $("#log").append("<tr><td><p style='font-weight: bold'>country</p></td><td><p>:"+country+"</p></td></tr>");
   if(city!=""){
   $("#log").append("<tr><td><p style='font-weight: bold'>city</p></td><td><p>:"+city+"</p></td></tr>");
   $("#log").scrollTop( 0 );
   }
+}
+
+function setValues(){
+  $('#countrysearch').val(country)
+  $('#citysearch').val(city)
 }
 
  $('#city').keyup(function(){
@@ -166,14 +158,23 @@ $(function() {
 
 
 function makeSearch(){
-  //ajax 
+  $.ajax({
+        url: "http://localhost:8000/api/search/",
+        dataType: "json",
+        data: {
+          search: $('#city-search').val()
+        },
+        success: function( data ) {
+          
+          console.log()
+
+
+        }
+      });
 }
 
 
 
 </script>
-
-
-
 
 {% endblock %}
