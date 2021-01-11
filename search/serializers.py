@@ -26,8 +26,6 @@ class CovidUserDocumentSerializer(DocumentSerializer):
         fields = (
             'id',
             'city',
-            'address',
-            'state_province',
             'country'
         )
 

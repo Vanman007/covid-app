@@ -3,6 +3,7 @@ from django_elasticsearch_dsl import Document, fields, Index
 from django_elasticsearch_dsl.registries import registry
 from .models import CovidUser
 from elasticsearch_dsl import analyzer
+from django_elasticsearch_dsl_drf.compat import KeywordField, StringField
 
 User = get_user_model()
 
@@ -10,12 +11,10 @@ User = get_user_model()
 SEARCH_INDEX = Index('search')
 
 SEARCH_INDEX.settings(
-    number_of_shards=1,
-    number_of_replicas=1
+    number_of_shards=3,
+    number_of_replicas=2
 )
 
-
-#@registry.register_document
 @SEARCH_INDEX.doc_type
 class CovidUserDocument(Document):
     id = fields.IntegerField(attr='id')
@@ -26,40 +25,55 @@ class CovidUserDocument(Document):
         # 'photo': fields.FileField(),  use this type if you have a file/image
     })
 
-    city = fields.TextField(
-        fields={
-            'raw': fields.KeywordField(),
-            'suggest': fields.CompletionField(),
+    city = fields.ObjectField(
+        properties={
+            'name': KeywordField(
+                fields={
+                    'raw': KeywordField(),
+                    'suggest': fields.CompletionField(),
+                }
+            ),
+            'covid_info': KeywordField(),
+            'location': fields.GeoPointField(attr='location_field_indexing'),
+            'country': fields.ObjectField(
+                properties={
+                    'name': KeywordField(
+                        fields={
+                            'raw': KeywordField(),
+                            'suggest': fields.CompletionField(),
+                        }
+                    ),
+                    'covid_info': KeywordField(),
+                    'location': fields.GeoPointField(
+                        attr='location_field_indexing'
+                    )
+                }
+            )
         }
     )
 
-    address = fields.TextField(
-        fields={
-            'raw': fields.KeywordField(),
-            'suggest': fields.CompletionField(),
-        }
-    )
+     # Country object
+    country = fields.NestedField(
+        attr='country_indexing',
+        properties={
+            'name': StringField(
+                fields={
+                    'raw': KeywordField(),
+                    'suggest': fields.CompletionField(),
+                }
+            ),
+            'city': fields.ObjectField(
+                properties={
+                    'name': StringField(
+                        fields={
+                            'raw': KeywordField(),
+                        },
+                    ),
+                },
+            ),
+        },
+    )   
 
-    state_province = fields.TextField(
-        fields={
-            'raw': fields.KeywordField(),
-        }
-    )
-    country = fields.TextField(
-        fields={
-            'raw': fields.KeywordField(),
-            'suggest': fields.CompletionField(),
-        }
-    )
-
-    covid_risk= fields.TextField(
-        fields={
-            'raw': fields.KeywordField(),
-        }
-    ) 
-    
-    # Location
-    location = fields.GeoPointField(attr='location_field_indexing')
 
     created_at = fields.DateField(attr='created_at')
 
@@ -74,12 +88,4 @@ class CovidUserDocument(Document):
         return super(CovidUserDocument, self).get_queryset().select_related(
             'user'
         )
-
-    def get_instances_from_related(self, related_instance):
-        """If related_models is set, define how to retrieve the Post instance(s) from the related model.
-        The related_models option should be used with caution because it can lead in the index
-        to the updating of a lot of items.
-        """
-        if isinstance(related_instance, User):
-            return related_instance.CovidUser.all()
 

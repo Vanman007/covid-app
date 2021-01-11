@@ -1,70 +1,13 @@
-# from rest_framework.generics import RetrieveUpdateDestroyAPIView
-# from django.contrib.auth import get_user_model
-# from rest_framework import permissions
-# from .serializers import UserSerializer,CovidUserSerializer
-# from search.documents import CovidUserDocument
-# from elasticsearch_dsl import Search
-# from search.models import CovidUser
-
-# User = get_user_model()
-
-# class CurrentUserUser(RetrieveUpdateDestroyAPIView):
-#     queryset = User
-#     permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = UserSerializer
-
-#     def get_object(self):
-#         return self.request.user
-
-#     def update(self, request, *args, **kwargs):
-#         response = super().update(request, *args, **kwargs)
-#         return response
-
-#     def delete(self, request, *args, **kwargs):
-#         user = self.get_object()
-#         user.delete()
-#         return Response(data='delete success')
-
-# class sdCovidUser(RetrieveUpdateDestroyAPIView):
-#     document = PostDocument 
-#     queryset = CovidUser.objects.all()
-#     permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = CovidUserSerializer
-#     search_fields = (
-#         'city'
-#     )
-
-    
-#     def get_object(self):
-#         coviduser = PostDocument.search()
-#         for hit in coviduser:
-#             print(hit)
-        
-#         return coviduser
-
-#     def update(self, request, *args, **kwargs):
-#         response = super().update(request, *args, **kwargs)
-#         return response
-
-#     def delete(self, request, *args, **kwargs):
-#         user = self.get_object()
-#         user.delete()
-#         return Response(data='delete success')
-
-# # class CurrentUserViewSet(viewsets.ReadOnlyModelViewSet):
-# #     queryset = User.objects.all()
-# #     serializer_class = CurrentUserSerializer
-
 from django_elasticsearch_dsl_drf.constants import (
     LOOKUP_FILTER_GEO_DISTANCE,
+    SUGGESTER_COMPLETION
 )
 from django_elasticsearch_dsl_drf.filter_backends import (
     FilteringFilterBackend,
-    OrderingFilterBackend,
     CompoundSearchFilterBackend,
     DefaultOrderingFilterBackend,
     SuggesterFilterBackend,
-    FacetedSearchFilterBackend,
+    NestedFilteringFilterBackend,
 )
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 
@@ -83,38 +26,32 @@ class CovidUserDocumentView(DocumentViewSet):
     lookup_field = 'id'
     filter_backends = [
         FilteringFilterBackend,
-        OrderingFilterBackend,
         DefaultOrderingFilterBackend,
         CompoundSearchFilterBackend,
         SuggesterFilterBackend,
-        FacetedSearchFilterBackend
+
     ]
     pagination_class = LimitOffsetPagination
     # Define search fields
     search_fields = (
-        'address',
-        'city',
-        'state_province',
-        'country',
+        'city.name',
+        'city.country.name',
     )
     # Define filtering fields
     filter_fields = {
         'id': None,
-        'city': 'city.raw',
-        'state_province': 'state_province.raw',
-        'country': 'country.raw',
-        'address':'address.raw',        
-    }
-    # Define ordering fields
-    ordering_fields = {
-        'id': None,
-        'name': None,
-        'city': None,
-        'country': None,
-        'address': None,
+        'city': 'city.name.raw',        
     }
     # Specify default ordering
-    ordering = ('id')
+    ordering_fields = {
+        'id': None,
+        'street': None,
+        'city': 'city.name.raw',
+    }    
+    ordering = {
+        'id': None,
+        'city.name.raw': None,
+    }
     # Define geo-spatial filtering fields
     geo_spatial_filter_fields = {
         'location': {
@@ -123,44 +60,21 @@ class CovidUserDocumentView(DocumentViewSet):
             ],
         },
     }
-    #facet
-    faceted_search_fields = {
-        'state_global': {
-            'field': 'state.raw',
-            'enabled': True,
-            'global': True,  # This makes the aggregation global
-        },
-    }   
-
-
     suggester_fields = {
         'city_suggest': {
-            'field': 'city.suggest',
+            'field': 'city.name.suggest',
             'suggesters': [
                 SUGGESTER_COMPLETION,
             ],
-            'options': {
-                'size': 6,  # Override default number of suggestions
-                'skip_duplicates':True, # Whether duplicate suggestions should be filtered out.
-            },
-        },
-        'state_province_suggest': {
-            'field': 'state_province.suggest',
-            'suggesters': [
-                SUGGESTER_COMPLETION,
-            ],
+            # 'options': {
+            #     'size': 6,  # Override default number of suggestions
+            #     'skip_duplicates':True, # Whether duplicate suggestions should be filtered out.
+            # },
         },
         'country_suggest': {
-            'field': 'country.suggest',
+            'field': 'country.name.suggest',
             'suggesters': [
                 SUGGESTER_COMPLETION,
             ],
         },
-        'address_suggest': {
-            'field': 'address.suggest',
-            'suggesters': [
-                SUGGESTER_COMPLETION,
-            ],
-        },
-        
     }

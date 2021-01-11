@@ -6,7 +6,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from faker import Faker
 
-from search.models import CovidUser
+from search.models import CovidUser, Country, City
 
 
 # config
@@ -27,11 +27,13 @@ class Command(BaseCommand):
         #User.objects.create_superuser("admin", "admin@admin.com", "admin")
         #[create_profile(faker) for _ in range(4)]
 
-        users_ids = User.objects.values_list('id', flat=True) 
+        #users_ids = User.objects.values_list('id', flat=True) 
 
         for _ in range(count):
             user= create_profile(faker)
-            create_coviduser(faker, user.id)
+            country= create_country(faker)  
+            city= create_city(faker, country)
+            create_coviduser(faker, user.id, city, country)
 
         call_command('search_index', '--rebuild', '-f')
         self.stdout.write(self.style.SUCCESS('Successfully ended commands'))
@@ -50,14 +52,29 @@ def create_profile(faker, retries=0):
         # try again with different random username
         return create_profile(faker, retries + 1)
 
-def create_coviduser(faker, users_id):
+def create_coviduser(faker, users_id, city, country):
     coviduser = CovidUser(
         user_id=users_id,
-        city=faker.city(),
-        country=faker.country(),
-        state_province="",
-        address=faker.address(),
+        city=city,
+        country=country,
         created_at=faker.date_time_between(start_date="-10d", end_date="now", tzinfo=tz.gettz('UTC')),
         has_covid=True
     )
     coviduser.save()
+
+def create_city(faker, country):
+    city = City(
+        name=faker.city(),
+        covid_info="",
+        country=country
+    )
+    city.save()
+    return city
+
+def create_country(faker):
+    country = Country(
+        name=faker.country(),
+        covid_info="",
+    )
+    country.save()
+    return country
