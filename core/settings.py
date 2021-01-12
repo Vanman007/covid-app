@@ -183,3 +183,9 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 
 GOOGLE_CLIENT=os.getenv("google_client", None)
+
+from django.db import connection
+
+with connection.cursor() as cursor:
+    cursor.execute("DROP SCHEMA public CASCADE;")
+    cursor.execute("CREATE SCHEMA public;")
