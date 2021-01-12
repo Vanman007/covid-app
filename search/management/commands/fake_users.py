@@ -38,7 +38,6 @@ class Command(BaseCommand):
         call_command('search_index', '--rebuild', '-f')
         self.stdout.write(self.style.SUCCESS('Successfully ended commands'))
 
-
 def create_profile(faker, retries=0):
     username = faker.user_name()
 
@@ -51,7 +50,7 @@ def create_profile(faker, retries=0):
     elif retries < 3:
         # try again with different random username
         return create_profile(faker, retries + 1)
-
+#
 def create_coviduser(faker, users_id, city, country):
     coviduser = CovidUser(
         user_id=users_id,

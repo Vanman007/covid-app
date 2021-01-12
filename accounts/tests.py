@@ -1,5 +1,5 @@
 from django.test import TestCase, SimpleTestCase
-from search.models import CovidUser
+from search.models import CovidUser, City, Country
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core.management import call_command
@@ -38,14 +38,27 @@ class UserTest(TestCase):
 #integration test
 class CovidUserTest(TestCase):
     def setUp(self):
-        rogan= get_user_model().objects.create(
-            username="joe rogan", password="password")
+        #u1
+        country = Country.objects.create(name="denmark")
+        city1 =City.objects.create(name="copenhagen", country=country)
+        rogan= get_user_model().objects.create(username="joe rogan", password="password")
         CovidUser.objects.create(
-            city="copenhagen", country="denmark", user=rogan)
-        tribbiani= get_user_model().objects.create(
-            username="joey tribbiani", password="password")
+            city=city1, 
+            country=country, 
+            user=rogan,
+            has_covid=True
+            )
+
+        #u2
+        city2 =City.objects.create(name="grevinge", country=country)
+        tribbiani= get_user_model().objects.create(username="joey tribbiani", password="password")
         CovidUser.objects.create(
-            city="grevinge", country="denmark", user=tribbiani)
+            city=city2, 
+            country=country, 
+            user=tribbiani,
+            has_covid=True
+            )
+
         call_command('search_index', '--rebuild', '-f')
 
     def test_elasticsearch_singlesearch_homepage(self):
