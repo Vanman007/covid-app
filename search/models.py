@@ -11,7 +11,7 @@ User = get_user_model()
 # Create your models here.
 class Country(models.Model):
     name=models.CharField(max_length=150)
-    covid_info = models.CharField(max_length=200)
+    covid_info = models.CharField(max_length=200, default="")
     latitude = models.DecimalField(null=True,
                                blank=True,
                                decimal_places=15,

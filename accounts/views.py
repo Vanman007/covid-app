@@ -3,7 +3,7 @@ from django.contrib.auth import logout as logout_django
 from django.shortcuts import render, redirect
 from .forms import SignUpForm, CovidUserInfoForm
 from django.contrib.auth.forms import AuthenticationForm
-from search.models import CovidUser
+from search.models import CovidUser, City, Country
 from django.contrib.auth import get_user_model
 from search.documents import CovidUserDocument
 from elasticsearch_dsl import Search
@@ -20,25 +20,23 @@ def home(request):
     city = request.GET.get('citysearch')
     country = request.GET.get('countrysearch')
     if city and country:
-        q=(Q("match", city=city) & Q("match", country=country) & Q("match", has_covid=True))
+        q=(Q("match", city__name=city) & Q("match", city__country__name=country) & Q("match", has_covid=True))
         result = CovidUserDocument.search().query(q)
         context ={
-            'country':result.execute().hits[0].country,
-            'city' :result.execute().hits[0].city,
-            'risk':result.execute().hits[0].covid_risk,
+            'country':result.execute().hits[0].city.country.name,
+            'city' :result.execute().hits[0].city.name,
+            'risk':result.execute().hits[0].city.covid_info,
             'hits': result.count()['value']
             }
-
     elif country and not city:
-        result = CovidUserDocument.search().query("match", country=country)
+        result = CovidUserDocument.search().query("match", city__country__name=country)
         context ={
-            'country':result.execute().hits[0].country,
-            'risk':result.execute().hits[0].covid_risk,
+            'country':result.execute().hits[0].city.country.name,
+            'risk':result.execute().hits[0].city.country.covid_info,
             'hits': result.count()['value']
         }
     else:
         context ={}
-
     return render(request, 'accounts/home.html', context)
 
 
@@ -81,6 +79,8 @@ def edit(request):
             city = form.cleaned_data.get('city')
             country = form.cleaned_data.get('country')
             has_covid = form.cleaned_data.get('has_covid')
+            country, _ = Country.objects.get_or_create(name=country)
+            city, _= City.objects.get_or_create(name=city, country=country)
             try:
                 obj = CovidUser.objects.get(user__id=request.user.id)
                 obj.city=city

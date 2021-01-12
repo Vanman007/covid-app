@@ -12,6 +12,7 @@ def search(request):
     city = request.GET.get('citysearch')
     country = request.GET.get('countrysearch')
     if city and country:
+        print("wrf")
         q=(Q("match", city=city) & Q("match", country=country) & Q("match", has_covid=True))
         result = CovidUserDocument.search().query(q)
         context ={
@@ -22,7 +23,8 @@ def search(request):
             }
 
     elif country and not city:
-        result = CovidUserDocument.search().query("match", country=country)
+        print(country)
+        result = CovidUserDocument.search().query("match", country__name=country)
         context ={
             'country':result.execute().hits[0].country,
             'risk':result.execute().hits[0].covid_risk,

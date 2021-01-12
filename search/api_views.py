@@ -66,15 +66,19 @@ class CovidUserDocumentView(DocumentViewSet):
             'suggesters': [
                 SUGGESTER_COMPLETION,
             ],
-            # 'options': {
-            #     'size': 6,  # Override default number of suggestions
-            #     'skip_duplicates':True, # Whether duplicate suggestions should be filtered out.
-            # },
+            'options': {
+                'size': 6,  # Override default number of suggestions
+                'skip_duplicates':True, # Whether duplicate suggestions should be filtered out.
+            },
         },
         'country_suggest': {
             'field': 'country.name.suggest',
             'suggesters': [
                 SUGGESTER_COMPLETION,
             ],
+            'options': {
+                'size': 6,  # Override default number of suggestions
+                'skip_duplicates':True, # Whether duplicate suggestions should be filtered out.
+            },
         },
     }
