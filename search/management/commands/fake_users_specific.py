@@ -18,10 +18,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('count', type=int, help='Number of fake covidusers to be created')
+        parser.add_argument('country', type=str, help='Number of fake covidusers to be created with said country')
+        parser.add_argument('city', type=str, help='Number of fake covidusers to be created with said city')
+
 
     def handle(self, *args, **kwargs):
         count = kwargs['count']
-        
+        input_country = kwargs['country']        
+        input_city = kwargs['city']
 
         faker = Faker(['it_IT', 'en_US'])
 
@@ -33,8 +37,8 @@ class Command(BaseCommand):
 
         for _ in range(count):
             user= create_profile(faker)
-            country= create_country(faker)  
-            city= create_city(faker, country)
+            country= create_country(input_country)  
+            city= create_city(input_city, country)
             create_coviduser(faker, user.id, city, country)
 
         call_command('search_index', '--rebuild', '-f')
@@ -63,10 +67,10 @@ def create_coviduser(faker, users_id, city, country):
     )
     coviduser.save()
 
-def create_city(faker, country):
-    city, _= City.objects.get_or_create(name=faker.city(), country=country)
+def create_city(city, country):
+    city, _= City.objects.get_or_create(name=city, country=country)
     return city
 
-def create_country(faker):
-    country, _ = Country.objects.get_or_create(name=faker.country())
+def create_country(country):
+    country, _ = Country.objects.get_or_create(name=country)
     return country
