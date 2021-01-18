@@ -35,11 +35,11 @@ class UserTest(TestCase):
         expected_obj_name=f'{user.username}'
         self.assertEqual(expected_obj_name, "cotten eye joe")
 
-#integration test
+
 class CovidUserTest(TestCase):
     def setUp(self):
-        #u1
         country = Country.objects.create(name="denmark")
+        #u1
         city1 =City.objects.create(name="copenhagen", country=country)
         rogan= get_user_model().objects.create(username="joe rogan", password="password")
         CovidUser.objects.create(
@@ -58,7 +58,6 @@ class CovidUserTest(TestCase):
             user=tribbiani,
             has_covid=True
             )
-
         call_command('search_index', '--rebuild', '-f')
 
     def test_elasticsearch_singlesearch_homepage(self):
@@ -72,3 +71,17 @@ class CovidUserTest(TestCase):
             'countrysearch':"denmark"})
         self.assertEqual(c.context['hits'],1)
 
+    def edit_and_search_integration_test(self):
+        newuser01=get_user_model().objects.create(username="joe moe", password="password")
+        self.client.force_login(user=newuser01)
+        c = self.client.post(
+            "/accounts/edit/",data={
+                'country':"denmark",
+                'city':"roskilde",
+                "has_covid": True,
+                "has_data":False
+                })        
+        self.assertEqual(c.status_code, 200)
+        c = self.client.get(
+            "/",data={'countrysearch':"denmark"})
+        self.assertEqual(c.context['hits'],3)
