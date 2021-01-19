@@ -1,6 +1,7 @@
+test:
+	docker-compose run web python manage.py test
 own:
 	sudo chmod 777 -R ~/Desktop/covid-app
-
 dropdb:
 	docker exec -it covidapp_db_1 bash 
 	psql -U postgres
@@ -12,3 +13,4 @@ superuser:
 
 fake users:
 	docker-compose run web python manage.py fake_users 10
+
